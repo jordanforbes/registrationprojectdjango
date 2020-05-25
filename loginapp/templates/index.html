@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+
+</head>
+<body>
+    <div class="container">
+        <h1>REGISTRATION</h1>
+        <div class="registration">
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <form action="register" method="post">
+                {% csrf_token %}
+                <p>First Name: <input type="text" name="firstName"></p>
+                <p>Last Name: <input type="text" name="lastName"></p>
+                <p>Email: <input type="text" name="email"></p>
+                <p>Password: <input type="text" name="pw"></p>
+                <p>Confirm PW: <input type="text" name="confpw"></p>
+                <p><input type="submit" value="register"></p>
+            </form>
+        </div>
+        <H1>LOGIN</H1>
+        <div class="login">
+            <form action="login" method="post">
+                {% csrf_token %}
+                <p>Email: <input type="text" name="email"></p>
+                <p>Password: <input type="text" name="pw"></p>
+                <p><input type="submit" value="login"></p>
+            </form>
+        </div>
+        <table class = "table table-striped">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th></th>
+            </tr>
+        {% for user in allUsers %}
+            <tr>
+                <td>{{ user.first_name }} {{user.last_name}}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.password }}</td>
+                <td><a href="/{{user.id}}/destroy">Destroy</a></td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
