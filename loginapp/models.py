@@ -1,5 +1,6 @@
 from django.db import models
 import re
+import bcrypt
 
 class UserManager(models.Manager):
     def reg_validator(self, post_data):
@@ -20,6 +21,25 @@ class UserManager(models.Manager):
         if post_data['pw'] != post_data['confpw']:
             errors['confpw'] = "password must match confirmation"
         return errors
+    
+    def loginValidator(self, postData):
+        print('loginValidator, below is the post data')
+        print(postData)
+        errors = {}
+        if len(postData['email']) == 0:
+            errors['emailrequired'] = "Email is required"
+        else:
+            usersWithEmail = User.objects.filter(email = postData['email'])
+            print(usersWithEmail)
+            if len(usersWithEmail)==0:
+                errors['emailnotregistered'] = 'email not found'
+            else: 
+                usertocheck = usersWithEmail[0]
+                if bcrypt.checkpw(postData['pw'].encode(), usertocheck.password.encode()):
+                    print('password matches')
+                else:
+                    errors['pwwrong'] = 'password is incorrect'
+        return errors
 # Create your models here.
 class User(models.Model):
     first_name = models.CharField(max_length=255 )
@@ -30,3 +50,9 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now = True) 
     objects = UserManager()
     
+class Item(models.Model):
+    name = models.CharField(max_length = 255)
+    uploader = models.ForeignKey(User, related_name = "items_uploaded", on_delete = models.CASCADE)
+    favorites = models.ManyToManyField(User, related_name = 'items_favorited')
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now = True)
