@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <!-- Compiled and minified CSS -->
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+ <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+ <!-- Compiled and minified JavaScript -->
+         
+    <title>Document</title>
+</head>
+<body>
+    <div class="container-fluid">
+    <div class="navbar navbar-default" id = 'custom-bootstrap-menu' role='navigation'>
+        <div class="container-fluid">
+            
+            <div class="navbar-header"><a class="navbar-brand" href="#"><span class="logo">
+                Hevy
+            </span></a>
+                <button type="button" class="navbar-toggle" data-target=".navbar-menubuilder"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-menubuilder">
+                <ul class="nav navbar-nav navbar-left">
+                    <li><a href="/">Home</a>
+                    </li>
+                    <li><a href="/products">Products</a>
+                    </li>
+                    <li><a href="/about-us">About Us</a>
+                    </li>
+                    <li><a href="/contact">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+       
+    <div class="container">
+    {% if loggedIn != 'guest' %}
+        <p>Welcome {{ loggedInObj.first_name }} {{ loggedInObj.last_name }}!</p>
+        <a href="/wall/logoutpage">Log Out</a>
+    {% else %}
+        <a href="/loginpage">Log in</a>
+    {% endif %}
+    <h3>Say Something!</h3>
+    <form action="/wall/{{loggedIn}}/create_post" method='post'>
+        {% csrf_token %}
+        <p>
+        <textarea name="message" id="" cols="50" rows="5">
+        </textarea>
+        </p>
+        <p>
+        <input type="submit" value="Post">
+        </p>
+    </form>
+    <ul>
+        <!-- for posts on wall -->
+        {% for post in allposts %}
+        <li><p><h4>{{post.user_id.first_name}} {{post.user_id.last_name}}</h4>{{ post.content }}</p>
+            
+            {% if loggedInObj.id == post.user_id.id%}
+            <form action="/wall/{{post.id}}/delete_post" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Delete Post">
+            </form>
+            {% endif %}
+            <!-- if comments on post -->
+            <ul>
+            {% for comment in post.commentonmessage.all %}
+                <!-- for comments on post -->
+                <li>
+                    <p><h4>{{comment.user_id.first_name}} {{comment.user_id.last_name}}</h4>{{ comment.content }}</p>
+                    {% if loggedInObj.id == comment.user_id.id%}
+                    <form action="/wall/{{comment.id}}/delete_comment" method="post">
+                        {% csrf_token %}
+                        <input type="submit" value="Delete Comment">
+                    </form>
+                    {% endif %}
+                </li>
+                <!-- endfor -->
+            {% endfor %}
+            </ul>
+            <form action="/wall/{{post.id}}/create_comment" method="post">
+                {% csrf_token %}
+                <textarea name="comment" id="" cols="30" rows="4"></textarea>
+                <input type="submit" value="Post Comment">
+            </form>
+            <!-- endif -->
+        </li>
+            {% endfor %}
+
+    </ul>
+    
+</div>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+</body>
+</html>
